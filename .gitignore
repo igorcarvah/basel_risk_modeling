@@ -1,0 +1,44 @@
+# --- Python Basics ---
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- Ambientes Virtuais (Nunca suba a venv) ---
+venv/
+env/
+.venv/
+.env
+
+# --- Jupyter Notebooks (Checkpoint suja o histórico) ---
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/
+
+# --- IDEs (Configurações da sua máquina não interessam ao time) ---
+.vscode/
+.idea/
+
+# --- DADOS (REGRA DE OURO: Risco Operacional Crítico) ---
+# Bloqueia qualquer planilha ou base de dados de subir acidentalmente
+*.csv
+*.xlsx
+*.xls
+*.json
+*.xml
+*.parquet
+*.pickle
+*.pkl
+
+# --- Pastas de Dados Específicas ---
+data/
+datasets/
+inputs/
+outputs/
+
+# --- Logs e Relatórios Temporários ---
+*.log
+*.pdf
+*.html
+
+# --- OS Files ---
+.DS_Store
+Thumbs.db
