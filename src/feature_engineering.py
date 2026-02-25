@@ -35,3 +35,35 @@ def calcular_historico_credito(df, coluna_data_str, data_corte='2017-12-01'):
     meses_corrigidos = np.where(meses_brutos < 0, meses_brutos + 1200, meses_brutos)
     
     return meses_corrigidos
+
+
+def criar_variaveis_dummy (df, columns_categoricas):
+     
+     """
+    Auditoria: Executa o One-Hot Encoding vetorizado e previne a Armadilha da Variável Dummy.
+    Substitui as colunas de texto originais pelas binárias no DataFrame.
+    """
+     # 1. Cria as dummies com trava de colinearidade (drop_first=True)
+     df_dummies = pd.get_dummies(df[columns_categoricas], prefix_sep=':', drop_first= True)
+
+     #2. Remove as colunas de texto originais para não poluir o modelo
+     df_limpo = df.drop(columns=columns_categoricas)
+
+     # 3. Funde a base limpa com as novas matrizes binárias
+     df_final = pd.concat([df_limpo, df_dummies], axis=1)
+
+     return df_final
+
+
+def imputar_dados_nulos(df):
+    """
+    Auditoria: Preenche a Dívida Técnica (NaN) usando regras de negócios corporativas (Proxies).
+    Prevenção de Loss Operacional: Usa reatribuição direta, eliminando o uso de inplace=True.
+    """
+    # Regra 1: Limite de Crédito Rotativo
+    # Racional de Negócio: Se o limiti é desconhecido, assumimos o valor do emprestimo atual.
+    df['total_rev_hi_lim'] = df['total_rev_hi_lim'].fillna(df['funded_amnt'])
+
+    # (A sala está pronta. Novas regras de imputação para outras colunas entrarão aqui abaixo no futuro)
+
+    return df
