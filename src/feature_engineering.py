@@ -37,6 +37,20 @@ def calcular_historico_credito(df, coluna_data_str, data_corte='2017-12-01'):
     return meses_corrigidos
 
 
+def definir_variavel_alvo(df):
+    """
+    Auditoria: Centraliza a regra de negócios corporativa que define o Default (Calote).
+    Cria a variável alvo 'good_bad_loan' (1 = Lucro, 0 = Loss).
+    """
+    # A lista oficial de status radioativos
+    status_ruins = ['Charged Off', 'Default', 'Does not meet the credit policy. Status:Charget Off', 'Late (31-120 days)']
+
+    # O motor vetorizado de alta performance
+    df['good_bad_loan'] = np.where(df['loan_status'].isin(status_ruins), 0, 1)
+
+    return df
+
+
 def criar_variaveis_dummy (df, columns_categoricas):
      
      """
@@ -67,3 +81,21 @@ def imputar_dados_nulos(df):
     # (A sala está pronta. Novas regras de imputação para outras colunas entrarão aqui abaixo no futuro)
 
     return df
+
+
+def remover_colunas_toxicas (df, limite_toxicidade =0.50):
+    """
+    Auditoria: Varre a matriz e ejeta automaticamente colunas com % de Dívida Técnica (NaN) 
+    acima do limite estabelecido pelo Comitê de Risco (Padrão: 50%).
+    """
+    # 1. Calcula i percentual de nulos de todas as colunas
+    percentual_nulos = df.isnull().mean()
+
+    # 2. Identifica os vaores alvos (colunas que estouram o limite)
+    colunas_para_ejetar = percentual_nulos[percentual_nulos> limite_toxicidade].index
+
+    # 3. Dá p write_off (baixa) nos ativos tóxicos
+    df_limpo = df.drop(columns=colunas_para_ejetar)
+
+    return df_limpo
+    
