@@ -2,6 +2,7 @@ import sys
 from pathlib import Path
 import pandas as pd
 import numpy as np
+from sklearn.model_selection import train_test_split
 
 
 def padronizar_tempo_emprego(df, coluna='emp_length'):
@@ -98,4 +99,54 @@ def remover_colunas_toxicas (df, limite_toxicidade =0.50):
     df_limpo = df.drop(columns=colunas_para_ejetar)
 
     return df_limpo
+
+
+def dividir_treino_teste(df, target_col='good_bad_loan', test_size=0.2, random_state=42):
+    """
+    Auditoria: Fatiamento da base em Treino e Teste (80/20).
+    Isola a Variável Alvo (Y) do Histórico (X) para evitar Data Leakage.
+    Aplica seed fixa (random_state=42) para garantir reprodutibilidade do modelo.
+    """
+    # 1. Separação de Sinal e Ruído
+    X = df.drop(target_col, axis=1)
+    y = df[target_col]
     
+    # 2. O Fatiamento Auditável
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=test_size, random_state=random_state
+    )
+    
+    return X_train, X_test, y_train, y_test
+
+
+def parametrizar_risco_carteira(df):
+    """
+    Pipeline de parametrização de risco. 
+    Regra: Zero colunas temporárias, vetorização direta com NumPy para performance.
+    """
+    # 1. Cálculo direto da métrica financeira (ex: Comprometimento de Renda)
+    # Ignoramos a criação de colunas base e calculamos direto no destino para poupar RAM.
+    df['taxa_comprometimento'] = np.where(
+        df['renda_declarada'] > 0, 
+        df['valor_parcela'] / df['renda_declarada'], 
+        0
+    )
+    
+    # 2. Parametrização da Flag de Risco (Target) de forma direta e lógica
+    # Sem steps intermediários que geram Dívida Técnica.
+    df['target_risco_alto'] = np.where(
+        (df['taxa_comprometimento'] > 0.40) | (df['dias_atraso'] > 15), 
+        1, # Risco Alto (Loss potencial)
+        0  # Risco Controlado
+    )
+    
+    # 3. Retorno otimizado: aplicamos a regra do "Nunca faça SELECT *"
+    # Retornamos apenas a chave primária e as features parametrizadas para a modelagem.
+    colunas_auditoria = ['id_cliente', 'taxa_comprometimento', 'target_risco_alto']
+    
+    return df[colunas_auditoria]
+
+# Execução limpa
+# df_parametrizado = parametrizar_risco_carteira(df_raw)
+
+
