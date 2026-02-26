@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.metrics import roc_curve
+
 
 def auditar_tendencia_woe(df_woe_calculado, coluna_feature):
     """
@@ -37,4 +39,28 @@ def auditar_tendencia_woe(df_woe_calculado, coluna_feature):
     
     # Ajuste automático para não cortar o texto rotacionado no salvamento/exibição
     plt.tight_layout() 
+    plt.show()
+
+
+
+
+
+def auditar_curva_roc(y_test, probabilidades, gini):
+    """
+    Plota o Laudo Preditivo do Scorecard (Curva ROC).
+    Regra de Auditoria: Nenhuma matemática complexa aqui, apenas visualização (UI).
+    """
+    fpr, tpr, thresholds = roc_curve(y_test, probabilidades)
+
+    plt.figure(figsize=(8, 6))
+    plt.plot(fpr, tpr, color='darkred', lw=2, label=f'Curva ROC (GINI = {gini*100:.1f}%)')
+    plt.plot([0, 1], [0, 1], color='gray', linestyle='--') # Linha do cara-ou-coroa
+    plt.title('Laudo Preditivo: Capacidade de Separação do Scorecard')
+    plt.xlabel('Taxa de Falsos Positivos (Bons clientes taxados como caloteiros)')
+    plt.ylabel('Taxa de Verdadeiros Positivos (Caloteiros reais barrados)')
+    plt.legend(loc='lower right')
+    plt.grid(alpha=0.3)
+    
+    # Ajuste automático do layout
+    plt.tight_layout()
     plt.show()
