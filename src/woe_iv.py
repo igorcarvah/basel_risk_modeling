@@ -20,3 +20,21 @@ def calcular_woe_iv(df, coluna_feature, coluna_target):
     return df_agrupado.sort_values(by='WoE')
 
 
+def aplicar_woe_carteira(df_principal, df_woe_calculado, coluna_feature):
+    """
+    Injeta o valor matemático do WoE na base principal substituindo a categoria em texto.
+    Regra de Auditoria: Uso exclusivo de dicionários e .map() para O(1) de complexidade.
+    Blindagem: Preenchimento de nulos com 0 (WoE neutro) para categorias não vistas.
+    """
+    # 1. Criação do Dicionário de De-Para (A chave do cofre)
+    # Pegamos a tabela agrupada e transformamos em um dicionário { 'Categoria': Valor_WoE }
+    nome_nova_coluna = f"{coluna_feature}woe"
+    df_principal[nome_nova_coluna] = df_principal[coluna_feature].map(dicionario_woe)
+
+    # 3. Mitigação de Risco Operacional (O pulo do gato do Auditor)
+    # Se amanhã entrar um cliente com uma profissão que não existia na base de treino,
+    # o .map() vai gerar um NaN (Nulo). Nulo quebra a Regressão Logística.
+    # Preenchemos com 0, que no WoE significa "Risco Neutro" (nem bom, nem ruim).
+    df_principal[nome_nova_coluna] = df_principal[nome_nova_coluna].fillna(0)
+
+    return df_principal
