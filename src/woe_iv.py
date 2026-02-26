@@ -38,3 +38,45 @@ def aplicar_woe_carteira(df_principal, df_woe_calculado, coluna_feature):
     df_principal[nome_nova_coluna] = df_principal[nome_nova_coluna].fillna(0)
 
     return df_principal
+
+
+def injetar_woe_na_base(df, df_tabela_woe, coluna_feature):
+    """
+    Substitui as categorias originais pelos seus respectivos valores de WoE.
+    Regra de Auditoria: Uso de .map() para garantir complexidade O(1).
+    """
+    # 1. Criamos o dicionário de mapeamento (A Chave do Cofre)
+    mapeamento = dict(zip(df_tabela_woe[coluna_feature], df_tabela_woe['WoE']))
+    
+    # 2. Aplicamos a transformação na coluna original
+    # Criamos uma nova coluna para manter a rastreabilidade do dado bruto
+    nome_nova_coluna = f"{coluna_feature}_woe"
+    df[nome_nova_coluna] = df[coluna_feature].map(mapeamento)
+    
+    # 3. Blindagem contra nulos (Categorias não vistas no treino)
+    # Atribuímos WoE 0 (Risco Neutro) para evitar quebra do modelo
+    df[nome_nova_coluna] = df[nome_nova_coluna].fillna(0)
+    
+    return df
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
