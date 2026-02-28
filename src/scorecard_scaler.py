@@ -27,6 +27,13 @@ def aplicar_politica_decisao_original(df):
     )
     return df
 
+def aplicar_politica_decisao_original(df):
+    df['Rating'] = df['Score_Final'].apply(definir_rating_credito_original)
+    df['Decisao'] = df['Rating'].apply(
+        lambda x: 'REPROVADO' if x[0] in ['D', 'E'] else 'APROVADO'
+    )
+    return df
+
 # ===================================================================
 # MOTOR 2: REGRA CALIBRADA V1 (QUARTIS)
 # ===================================================================
