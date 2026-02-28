@@ -41,7 +41,7 @@ O sistema opera em uma arquitetura modularizada, separando a limpeza de dados da
 ### B. Motor Estatístico (WoE & IV)
 Para cumprir o Acordo de Basileia, algoritmos *Black-box* foram descartados. A matriz foi convertida em pesos de risco utilizando o **Weight of Evidence (WoE)**, que lineariza o risco calculando o logaritmo natural da proporção entre clientes adimplentes e inadimplentes:
 
-$$WoE = \ln\left(\frac{\% Bons}{\% Maus}\right)$$
+$$WoE = \ln \left( \frac{\text{Proporção de Bons}}{\text{Proporção de Maus}} \right)$$
 
 * **Auditoria de Monotonicidade:** Variáveis chave foram forçadas a apresentar progressão lógica. Ex: Hipotecas representam risco mitigado (WoE positivo), enquanto Locatários geram risco acentuado (WoE negativo).
 * **Information Value (IV):** Variáveis com $IV < 0.02$ foram classificadas como "ruído inútil" e isoladas do motor preditivo.
@@ -55,10 +55,27 @@ Modelos estáticos falham quando o custo de captação do banco aumenta. O V2 po
 | **Base (Operação Normal)** | 10.5% | 84.7% | 14.300 | R$ 68.260.750,00 |
 | **Estresse (Crise / Dinheiro Caro)** | 14.0% | 74.3% | 24.000 | R$ 45.317.600,00 |
 
+---
+## 🛡️ 3. Decisões Arquiteturais e Impacto de Negócio
+
+Este projeto não é apenas um classificador estatístico; é um motor de proteção de balanço. As decisões de modelagem foram tomadas com base no rigor de auditoria interna e na realidade da Diretoria Comercial:
+
+### A. Mitigação de Risco e o Poder do *Collateral* (Garantias)
+Quando a Selic sobe para 14%, a simulação mostra a aprovação caindo para 74.3%. Isso não é uma "falha comercial", é a trava de segurança contra o **Esmagamento de Margem (*Margin Squeeze*)**. Com o custo de captação alto, a margem de lucro não cobre o risco de clientes *Subprime*. 
+* **A Estratégia:** Para manter o *Market Share* sem gerar *Loss*, o modelo aponta para a exigência de **Garantias Reais (Veículos ou Imóveis)**. Ao atrelar um bem à dívida, a Probabilidade de Default (PD) e a Severidade da Perda (LGD) despencam. A própria auditoria matemática do WoE comprova isso: clientes na categoria *Mortgage* (Bens Alienados) mitigam o risco a ponto de viabilizar a aprovação mesmo em cenários de juros altos.
+
+### B. Auditabilidade Bacen (White-Box vs. Black-Box)
+Modelos preditivos complexos como *Random Forest* e *XGBoost* operam como "Caixas Pretas". Embora tenham alta acurácia, eles falham em auditorias do Banco Central porque a instituição precisa justificar legalmente o motivo de uma recusa de crédito. 
+* A escolha pela **Regressão Logística com WoE** lineariza o risco, lida naturalmente com *missing values* sem imputações artificiais e gera um Scorecard onde cada ponto ganho ou perdido pelo cliente é 100% explicável e rastreável. 
+
+### C. Tolerância Zero para Lixo Operacional (*Data Leakage*)
+A infraestrutura do pipeline segue protocolos rígidos para garantir que o modelo não "engasgue" em produção:
+* **Prevenção de Vazamento:** A variável *Target* original (`loan_status`) foi expurgada no momento zero para evitar *Data Leakage*.
+* **Higiene de Dados:** Variáveis com mais de 50% de nulidade foram descartadas. Valores anômalos (rendas irracionais) não deletam a linha do cliente (o que causaria perda de dados na API), mas são isoladas e penalizadas matematicamente. O código segue a máxima corporativa: é modular, performático e não faz "SELECT *" em bases de produção.
 
 ---
 
-## 📸 3. Evidências Visuais (O Dossiê de Auditoria)
+## 📸 4. Evidências Visuais (O Dossiê de Auditoria)
 
 ### 1. Calibração de Renda (Padrão FGV)
 *Para garantir alinhamento com a Diretoria Comercial, a base foi segmentada utilizando a documentação oficial da FGV (Salário Mínimo base R$ 1.380).*
@@ -70,7 +87,7 @@ Modelos estáticos falham quando o custo de captação do banco aumenta. O V2 po
 
 ---
 
-## 🛠️ 4. Arquitetura Técnica
+## 🛠️ 5. Arquitetura Técnica
 
 O projeto segue princípios de **Clean Code** e **Governança de Dados**, isolando as etapas críticas de transformação para garantir reprodutibilidade.
 
