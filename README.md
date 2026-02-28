@@ -55,38 +55,6 @@ Modelos estáticos falham quando o custo de captação do banco aumenta. O V2 po
 | **Base (Operação Normal)** | 10.5% | 84.7% | 14.300 | R$ 68.260.750,00 |
 | **Estresse (Crise / Dinheiro Caro)** | 14.0% | 74.3% | 24.000 | R$ 45.317.600,00 |
 
-> **Laudo do Auditor:** Observe como o modelo V2 blinda o Banco. Quando a Selic sobe para 14%, a margem de lucro cai. O algoritmo, percebendo que o Risco x Retorno não fecha, **DERRUBA a Taxa de Aprovação automaticamente (de 91% para 74.3%)**, barrando 24.000 CPFs na base de teste para defender o capital líquido do banco contra o Esmagamento de Margem.
-
-### 🎙️ Sabatina Executiva: Margem, Selic e Garantias (Collateral)
-
-**Pergunta do Comitê Comercial:** *"O seu relatório mostra que com a Selic a 14%, a nossa aprovação cai para 74%. Você está dizendo que o seu algoritmo destrói o faturamento da área comercial quando os juros sobem?"*
-
-**Laudo do Auditor (A Solução de Negócio):**
-O algoritmo não destrói o faturamento; ele impede a falência da carteira. A simulação expõe o fenômeno de **Esmagamento de Margem (Margin Squeeze)**. Com a nossa taxa travada nas premissas em 35%, captar dinheiro a 14% corrói o *spread*. O modelo age como um freio de emergência de liquidez: reduz a aprovação porque o lucro líquido remanescente já não cobre o custo estatístico da cauda de risco.
-
-Para a Diretoria manter o *Market Share* (aprovação em 91%) no cenário de estresse sem gerar *Loss Operacional*, o algoritmo aponta duas saídas:
-1. **Ajuste de Pricing:** Acionar a tesouraria para repassar a alta da Selic, elevando a taxa cobrada na ponta para reequilibrar o Valor Esperado.
-2. **Exigência de Garantias Reais (Collateral):** Migrar os CPFs reprovados para linhas de crédito com garantia (Veículo ou Imóvel). Ao atrelar um bem físico à dívida, a severidade da perda (LGD) despenca, o Risco cai e o algoritmo volta a aprovar o crédito com segurança. A própria auditoria de WoE do modelo já valida isso: clientes com bens alienados (*Mortgage*) apresentam risco de *default* matematicamente mitigado. O modelo obedece à matemática; a estratégia define o produto.
-
-### 🔎 2.D. FAQ de Auditoria: Defesa do Modelo (Comitê de Risco)
-
-Esta seção documenta as decisões arquiteturais e de negócio, garantindo que o modelo suporte a sabatina de um comitê de crédito e atenda aos requisitos de auditoria interna.
-
-**1. Risco de Negócio e C-Level (Diretoria Comercial)**
-* **Pergunta do Comitê:** "Legal que o GINI subiu, mas como esse modelo vira dinheiro ou evita 'Loss' para o banco na vida real?"
-* **Gabarito do Auditor Interno:** O modelo não é apenas um classificador, é um motor de *Pricing* dinâmico. O V2 gerou um aumento de R$ 33,69 milhões na proteção de capital barrando 3.369 caloteiros que o modelo antigo aprovaria. Além disso, ele reage ao custo de captação: se a Selic sobe para 14% e o spread achata, o modelo corta a aprovação para 74.3% automaticamente, protegendo o balanço contra safras tóxicas.
-
-**2. Risco de Infraestrutura e Código (Engenharia e Governança)**
-* **Pergunta do Comitê:** "Como você garante que não há 'Data Leakage' (vazamento de dados) ou dívida técnica que vai engasgar a esteira em produção?"
-* **Gabarito do Auditor Interno:** A regra aqui é de tolerância zero para lixo operacional. A variável original `loan_status` foi ejetada imediatamente após a criação do *Target* binário para evitar *Data Leakage*. Variáveis com mais de 50% de nulos foram dropadas. Além disso, rendas absurdas não geram *crash* na API nem são deletadas (o que causaria perda de dados); elas são isoladas e penalizadas matematicamente pelo motor de WoE. O código é modular, auditável e não faz 'SELECT *' em base de produção.
-
-**3. Risco Estatístico e Matemático (Modelagem Quantitativa)**
-* **Pergunta do Comitê:** "Por que usar Regressão Logística com WoE em vez de um algoritmo mais robusto como Random Forest ou XGBoost para lidar com a base?"
-* **Gabarito do Auditor Interno:** Modelos de 'Caixa Preta' não passam na auditoria do Banco Central (Bacen) para concessão de crédito, pois não explicam o motivo da recusa. Usamos o *Weight of Evidence* (WoE) porque ele lineariza a relação de risco e lida naturalmente com *missing values* e *outliers* sem precisar de imputações arbitrárias. O ganho de GINI (de 31.00% para 32.93%) prova que governança e higiene de dados (regras da FGV) batem algoritmos complexos operando em bases sujas.
-
-**4. Fit Cultural e Background (Recursos Humanos / Gestor)**
-* **Pergunta do Comitê:** "Você tem background em saúde e hotelaria. Por que deveríamos confiar a você a mesa de Risco de uma instituição financeira?"
-* **Gabarito do Auditor Interno:** O Risco de Crédito exige a mesma frieza de uma UTI e o mesmo rigor de uma auditoria financeira noturna. Na UTI, um protocolo ignorado custa uma vida; no fechamento de caixa de um hotel, um cálculo displicente gera *loss* imediato. Trago essa mesma mentalidade para o código: sigo protocolos estritos, documento cada passo e não aprovo modelos 'mais ou menos'. A técnica eu codifico no Python; a governança e a gestão de crise sob pressão já estão consolidadas no meu perfil profissional.
 
 ---
 
