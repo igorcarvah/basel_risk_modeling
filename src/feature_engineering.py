@@ -146,7 +146,70 @@ def parametrizar_risco_carteira(df):
     
     return df[colunas_auditoria]
 
-# Execução limpa
-# df_parametrizado = parametrizar_risco_carteira(df_raw)
 
 
+# ===================================================================
+# ENGENHARIA V2: DISCRETIZAÇÃO DE VARIÁVEIS CONTÍNUAS (BINNING)
+# ===================================================================
+
+def categorizar_renda_dti(df):
+    """
+    Auditoria V2: Transforma Renda e Alavancagem em categorias (Faixas/Bins)
+    usando Quintis Matemáticos (20% da base em cada faixa).
+    Isso protege o motor WoE contra outliers e relações não-lineares.
+    """
+    # Usamos .copy() para evitar o alerta de SettingWithCopyWarning do Pandas
+    df_temp = df.copy()
+    
+    # 1. Fatiamento da Renda Anual (annual_inc)
+    # q=5 corta a fila de clientes em 5 pedaços iguais baseados na renda
+    df_temp['faixa_renda'] = pd.qcut(df_temp['annual_inc'], q=5, precision=0, duplicates='drop').astype(str)
+    
+    # 2. Fatiamento do Endividamento (dti - Debt to Income)
+    # Ex: DTI de 15 significa que 15% da renda já está comprometida com outras dívidas
+    df_temp['faixa_dti'] = pd.qcut(df_temp['dti'], q=5, precision=2, duplicates='drop').astype(str)
+    
+    return df_temp
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
