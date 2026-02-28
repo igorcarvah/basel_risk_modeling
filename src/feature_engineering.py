@@ -148,43 +148,64 @@ def parametrizar_risco_carteira(df):
 
 
 
-# ===================================================================
-# ENGENHARIA V2: DISCRETIZAÇÃO DE VARIÁVEIS CONTÍNUAS (BINNING)
-# ===================================================================
 
+
+# ===================================================================
+# ENGENHARIA V2: HIGIENE + MÉTRICA FGV + DTI TÉCNICO
+# ===================================================================
 def categorizar_renda_dti(df):
     """
-    Auditoria V2: Transforma Renda e Alavancagem em categorias (Faixas/Bins)
-    usando Quintis Matemáticos (20% da base em cada faixa).
-    Isso protege o motor WoE contra outliers e relações não-lineares.
+    Transforma Renda e DTI em categorias auditáveis.
+    Higiene: Filtra rendas anuais abaixo do mínimo existencial (R$ 18.356).
     """
-    # Usamos .copy() para evitar o alerta de SettingWithCopyWarning do Pandas
     df_temp = df.copy()
     
-    # 1. Fatiamento da Renda Anual (annual_inc)
-    # q=5 corta a fila de clientes em 5 pedaços iguais baseados na renda
-    df_temp['faixa_renda'] = pd.qcut(df_temp['annual_inc'], q=5, precision=0, duplicates='drop').astype(str)
+    # 1. FILTRO DE SOBREVIVÊNCIA (LIMPEZA DE OUTLIERS)
+    # Removemos registros abaixo de 1 Salário Mínimo/mês para evitar erro operacional
+    df_temp = df_temp[df_temp['annual_inc'] >= 18356]
     
-    # 2. Fatiamento do Endividamento (dti - Debt to Income)
-    # Ex: DTI de 15 significa que 15% da renda já está comprometida com outras dívidas
-    df_temp['faixa_dti'] = pd.qcut(df_temp['dti'], q=5, precision=2, duplicates='drop').astype(str)
+    # 2. RÉGUA DE RENDA (Classes Sociais FGV Anualizadas)
+    bins_renda = [
+        0, 
+        2824 * 12,    # Classe E
+        5648 * 12,    # Classe D
+        14120 * 12,   # Classe C
+        28240 * 12,   # Classe B
+        float('inf')  # Classe A
+    ]
+    
+    labels_renda = [
+        '1. Classe E (Ate 2.8k/mes)', 
+        '2. Classe D (2.8k - 5.6k/mes)', 
+        '3. Classe C (5.6k - 14.1k/mes)', 
+        '4. Classe B (14.1k - 28.2k/mes)', 
+        '5. Classe A (> 28.2k/mes)'
+    ]
+    
+    df_temp['faixa_renda'] = pd.cut(
+        df_temp['annual_inc'], 
+        bins=bins_renda, 
+        labels=labels_renda, 
+        include_lowest=True
+    ).astype(str)
+    
+    # 3. RÉGUA DE ENDIVIDAMENTO (DTI - DETALHAMENTO TÉCNICO)
+    # Mantendo a clareza dos percentuais para o Comitê de Risco
+    bins_dti = [-float('inf'), 10.0, 20.0, 30.0, float('inf')]
+    labels_dti = [
+        '1. Saudavel (<10%)', 
+        '2. Alerta (10-20%)', 
+        '3. Risco (20-30%)', 
+        '4. Critico (>30%)'
+    ]
+    
+    df_temp['faixa_dti'] = pd.cut(
+        df_temp['dti'], 
+        bins=bins_dti, 
+        labels=labels_dti
+    ).astype(str)
     
     return df_temp
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
