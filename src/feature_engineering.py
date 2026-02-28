@@ -52,24 +52,31 @@ def dividir_treino_teste(df, target_col='good_bad_loan', test_size=0.2, random_s
 # ===================================================================
 def categorizar_renda_dti(df):
     """
-    Transforma Renda e DTI em categorias auditáveis.
-    Higiene: Filtra rendas anuais abaixo do mínimo existencial (R$ 18.356).
+    Auditoria V2: Categorização de Renda e DTI sem perda de dados (Zero Data Loss).
+    Régua FGV calibrada para Salário Mínimo base R$ 1.380 (Conforme documentação).
     """
     df_temp = df.copy()
     
-    # 1. Checkpoint de Linhagem
+    # Checkpoint de Segurança
     if 'good_bad_loan' not in df_temp.columns:
-        raise KeyError("ERRO DE LINHAGEM: A coluna 'good_bad_loan' precisa ser gerada antes do filtro!")
+        raise KeyError("ERRO DE LINHAGEM: A coluna 'good_bad_loan' precisa existir!")
+
+    # 1. TRATAMENTO SEM EXCLUSÃO (Floor Técnico)
+    df_temp['annual_inc'] = np.where(df_temp['annual_inc'] < 0, 0, df_temp['annual_inc'])
     
-    # 2. Filtro de Sobrevivência (Limpeza de Outliers baseada em Salário Mínimo)
-    df_temp = df_temp[df_temp['annual_inc'] >= 18356].copy()
-    
-    # 3. Régua de Renda (Classes Sociais FGV Anualizadas)
-    bins_renda = [0, 33888, 67776, 169440, 338880, float('inf')]
-    labels_renda = ['1. Classe E', '2. Classe D', '3. Classe C', '4. Classe B', '5. Classe A']
+    # 2. RÉGUA DE RENDA FGV (Calibrada conforme base do Comitê: SM R$ 1.380)
+    # Valores mensais multiplicados por 12 para parear com a Renda Anual (annual_inc)
+    bins_renda = [-float('inf'), 33120, 66240, 165600, 331200, float('inf')]
+    labels_renda = [
+        '1. Classe E (Ate 2.7k/mes)', 
+        '2. Classe D (2.7k-5.5k/mes)', 
+        '3. Classe C (5.5k-13.8k/mes)', 
+        '4. Classe B (13.8k-27.6k/mes)', 
+        '5. Classe A (>27.6k/mes)'
+    ]
     df_temp['faixa_renda'] = pd.cut(df_temp['annual_inc'], bins=bins_renda, labels=labels_renda).astype(str)
     
-    # 4. Régua de Endividamento (DTI)
+    # 3. RÉGUA DE DTI
     bins_dti = [-float('inf'), 10.0, 20.0, 30.0, float('inf')]
     labels_dti = ['1. Saudavel (<10%)', '2. Alerta (10-20%)', '3. Risco (20-30%)', '4. Critico (>30%)']
     df_temp['faixa_dti'] = pd.cut(df_temp['dti'], bins=bins_dti, labels=labels_dti).astype(str)
