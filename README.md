@@ -103,9 +103,10 @@ BASEL_RISK_MODELING/
 │   └── plots_woe.py         # Geração de Laudos Visuais
 ├── 01_Challenger_V1.ipynb   # Laboratório Experimental (Baseline)
 ├── 02_Champion_V2.ipynb     # Esteira de Produção e Teste Macroeconômico (Homologado)
-├── README.md                # Documentação Executiva
-└── requirements.txt         # Dependências do Projeto
-
+├── .gitignore               # Ocultação de Lixo Operacional e Arquivos Locais
+├── LICENSE                  # Compliance e Propriedade Intelectual (MIT)
+├── README.md                # Documentação Executiva e Laudos de Negócio
+└── requirements.txt         # Dependências do Motor Estatístico (Reprodutibilidade)
 
 # Clone o repositório
 git clone [https://github.com/igorcarvah/lab_risco_quant.git](https://github.com/igorcarvah/lab_risco_quant.git)
