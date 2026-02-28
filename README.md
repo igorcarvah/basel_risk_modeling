@@ -4,6 +4,7 @@
 ![Status](https://img.shields.io/badge/Status-V2.0%20Homologado-success)
 ![Methodology](https://img.shields.io/badge/Methodology-Basileia%20%7C%20FGV-darkblue)
 ![Domain](https://img.shields.io/badge/Finance-Credit%20Risk%20%26%20P%26L-orange)
+![License](https://img.shields.io/badge/License-MIT-green)
 
 > **"Modelos estatísticos de 'Caixa Preta' não sobrevivem a auditorias do Banco Central. Lucro real se protege com governança, higiene de dados e respeito à macroeconomia."**
 
