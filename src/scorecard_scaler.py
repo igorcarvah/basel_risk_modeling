@@ -50,3 +50,37 @@ def aplicar_politica_decisao_quartis(df):
         lambda x: 'REPROVADO' if x[0] in ['D', 'E'] else 'APROVADO'
     )
     return df
+
+# 1. A CONSTRUÇÃO DO MOTOR (Definindo a Função de P&L)
+def simular_politica_selic(y_true, prob_calote, selic_atual):
+    """
+    Auditoria V2: Ajusta a régua de aprovação automaticamente baseada no custo do dinheiro.
+    """
+    ticket_medio = 10000.00         
+    taxa_cliente_aa = 0.35          
+    spread_administrativo = 0.05    
+    
+    custo_funding = selic_atual + spread_administrativo
+    
+    lucro_por_bom_pagador = ticket_medio * (taxa_cliente_aa - custo_funding)
+    loss_por_calote = ticket_medio 
+    
+    prob_bom = 1 - prob_calote
+    valor_esperado = (prob_bom * lucro_por_bom_pagador) - (prob_calote * loss_por_calote)
+    
+    decisao = np.where(valor_esperado > 0, 'APROVADO', 'REPROVADO')
+    
+    df_simulacao = pd.DataFrame({
+        'Calote_Real': y_true,
+        'Decisao': decisao
+    })
+    
+    aprovados = df_simulacao[df_simulacao['Decisao'] == 'APROVADO']
+    
+    lucro_real = (aprovados['Calote_Real'] == 1).sum() * lucro_por_bom_pagador
+    prejuizo_real = (aprovados['Calote_Real'] == 0).sum() * loss_por_calote
+    
+    lucro_liquido = lucro_real - prejuizo_real
+    taxa_aprovacao = len(aprovados) / len(df_simulacao)
+    
+    return lucro_liquido, taxa_aprovacao, (df_simulacao['Decisao'] == 'REPROVADO').sum()
