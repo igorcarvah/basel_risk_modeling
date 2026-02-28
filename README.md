@@ -54,7 +54,7 @@ Modelos estáticos falham quando o custo de captação do banco aumenta. O V2 po
 | **Base (Operação Normal)** | 10.5% | 84.7% | 14.300 | R$ 68.260.750,00 |
 | **Estresse (Crise / Dinheiro Caro)** | 14.0% | 74.3% | 24.000 | R$ 45.317.600,00 |
 
-> **Laudo do Auditor:** Observe como o modelo V2 blinda o Daycoval. Quando a Selic sobe para 14%, a margem de lucro cai. O algoritmo, percebendo que o Risco x Retorno não fecha, **DERRUBA a Taxa de Aprovação automaticamente (de 91% para 74.3%)**, barrando 24.000 CPFs na base de teste para defender o capital líquido do banco contra o Esmagamento de Margem.
+> **Laudo do Auditor:** Observe como o modelo V2 blinda o Banco. Quando a Selic sobe para 14%, a margem de lucro cai. O algoritmo, percebendo que o Risco x Retorno não fecha, **DERRUBA a Taxa de Aprovação automaticamente (de 91% para 74.3%)**, barrando 24.000 CPFs na base de teste para defender o capital líquido do banco contra o Esmagamento de Margem.
 
 ### 🎙️ Sabatina Executiva: Margem, Selic e Garantias (Collateral)
 
